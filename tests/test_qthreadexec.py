@@ -7,6 +7,7 @@ import threading
 import time
 import weakref
 from concurrent.futures import CancelledError, TimeoutError
+from unittest import mock
 
 import pytest
 
@@ -175,3 +176,21 @@ def test_map_timeout(executor):
     # because the max number of workers is 5 and the rest of
     # the tasks were not started at the time of the cancel.
     assert set(results) != {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+
+def test_closing(executor):
+    """Test that closing context manager works as expected"""
+    # mock the shutdown method of the executor
+    with mock.patch.object(executor, "shutdown") as mock_shutdown:
+        with executor.closing():
+            pass
+
+        # ensure that shutdown was called with (False, cancel_futures=False)
+        mock_shutdown.assert_called_once_with(wait=False, cancel_futures=False)
+
+    with mock.patch.object(executor, "shutdown") as mock_shutdown:
+        with executor.closing(wait=True, cancel_futures=True):
+            pass
+
+        # ensure that shutdown was called with (False, cancel_futures=False)
+        mock_shutdown.assert_called_once_with(wait=True, cancel_futures=True)
