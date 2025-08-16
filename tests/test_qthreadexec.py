@@ -6,7 +6,7 @@ import logging
 import threading
 import time
 import weakref
-from concurrent.futures import CancelledError
+from concurrent.futures import CancelledError, TimeoutError
 
 import pytest
 
@@ -145,3 +145,33 @@ def test_shutdown_cancel_futures(executor, cancel):
         assert cancels > 0
     else:
         assert cancels == 0
+
+
+def test_map(executor):
+    """Basic test of executor map functionality"""
+    results = list(executor.map(lambda x: x + 1, range(10)))
+    assert results == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+
+def test_map_timeout(executor):
+    """Test that map with timeout raises TimeoutError and cancels futures"""
+    results = []
+
+    def func(x):
+        nonlocal results
+        time.sleep(0.05)
+        results.append(x)
+        return x
+
+    start = time.monotonic()
+    with pytest.raises(TimeoutError):
+        list(executor.map(func, range(10), timeout=0.01))
+    duration = time.monotonic() - start
+    # this test is flaky on some platforms, so we give it a wide bearth.
+    assert duration < 0.1
+
+    executor.shutdown(wait=True)
+    # only about half of the tasks should have completed
+    # because the max number of workers is 5 and the rest of
+    # the tasks were not started at the time of the cancel.
+    assert set(results) != {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
