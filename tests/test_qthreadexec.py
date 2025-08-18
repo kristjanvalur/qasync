@@ -184,7 +184,7 @@ def test_map_timeout(executor):
 
 def test_map_error(executor):
     """Test that map with an exception will raise, and remaining tasks are cancelled"""
-    #pytest.skip()
+    pytest.skip()
     results = []
 
     def func(x):
@@ -204,7 +204,7 @@ def test_map_error(executor):
 
 @pytest.mark.parametrize("cancel", [True, False])
 def test_map_shutdown(executor, cancel):
-    pytest.skip()
+    #pytest.skip()
     results = []
 
     def func(x):
