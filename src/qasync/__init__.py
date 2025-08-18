@@ -21,7 +21,7 @@ import os
 import sys
 import time
 from concurrent.futures import Future
-from queue import Queue
+from queue import SimpleQueue as Queue
 from threading import Lock
 
 logger = logging.getLogger(__name__)
