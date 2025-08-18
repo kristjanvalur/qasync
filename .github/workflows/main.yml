@@ -21,18 +21,20 @@ jobs:
     runs-on: ${{ matrix.image }}
     strategy:
       matrix:
-        os: [ubuntu, windows, macos-x86_64, macos-arm64]
+        #os: [ubuntu, windows, macos-x86_64, macos-arm64]
+        os: [macos-x86_64]
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
-        qt-version: ["pyside2", "pyside6", "pyqt5", "pyqt6"]
+        qt-version: ["pyside6"]
+        # qt-version: ["pyside2", "pyside6", "pyqt5", "pyqt6"]
         include:
-          - os: ubuntu
-            image: ubuntu-24.04
-          - os: windows
-            image: windows-2022
+          #- os: ubuntu
+          #  image: ubuntu-24.04
+          #- os: windows
+          #  image: windows-2022
           - os: macos-x86_64
             image: macos-13
-          - os: macos-arm64
-            image: macos-14
+          #- os: macos-arm64
+          #  image: macos-14
         exclude:
           # pyside2 does not publish arm64 packages
           - os: macos-arm64
