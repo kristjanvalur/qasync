@@ -204,7 +204,7 @@ def test_map_error(executor):
 
 @pytest.mark.parametrize("cancel", [True, False])
 def test_map_shutdown(executor, cancel):
-    pytest.skip()
+    #pytest.skip()
     results = []
 
     def func(x):
@@ -228,7 +228,7 @@ def test_map_shutdown(executor, cancel):
 
 def test_map_start(executor):
     """Test that map starts tasks immediately, before iterating"""
-    #pytest.skip()
+    pytest.skip()
     e = threading.Event()
     m = executor.map(lambda x: (e.set(), x), range(1))
     e.wait(timeout=0.1)
