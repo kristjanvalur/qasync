@@ -204,9 +204,6 @@ def test_map_error(executor):
 
 @pytest.mark.parametrize("cancel", [True, False])
 def test_map_shutdown(executor, cancel):
-    pytest.skip()
-    if not cancel:
-        pytest.skip()
     results = []
 
     def func(x):
@@ -226,6 +223,10 @@ def test_map_shutdown(executor, cancel):
         assert len(results) < 15, "Some tasks should have been cancelled"
     else:
         assert len(results) == 15, "All tasks should have been completed"
+    # force cleanup of the generator on this thread.  For pyside6 there
+    # appears some weird race condition if this does not happen, even though
+    # all the workers are already dead.
+    m.close()
 
 
 def test_map_close(executor):
@@ -238,9 +239,9 @@ def test_map_close(executor):
     m = executor.map(func, range(10))
     # must start the generator so that close() has any effect
     assert next(m) == 0
-    #m.close()
+    m.close()  # should cancel remaining work
     executor.shutdown(wait=True, cancel_futures=False)
-    #assert len(results) < 10, "Some tasks should have been cancelled"
+    assert len(results) < 10, "Some tasks should have been cancelled"
 
 
 def test_map_start(executor):
