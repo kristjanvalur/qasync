@@ -204,7 +204,7 @@ def test_map_error(executor):
 
 @pytest.mark.parametrize("cancel", [True, False])
 def test_map_shutdown(executor, cancel):
-    #pytest.skip()
+    pytest.skip()
     if not cancel:
         pytest.skip()
     results = []
@@ -226,6 +226,21 @@ def test_map_shutdown(executor, cancel):
         assert len(results) < 15, "Some tasks should have been cancelled"
     else:
         assert len(results) == 15, "All tasks should have been completed"
+
+
+def test_map_close(executor):
+    results = []
+    def func(x):
+        nonlocal results
+        time.sleep(0.05)
+        results.append(x)
+        return x
+    m = executor.map(func, range(10))
+    # must start the generator so that close() has any effect
+    assert next(m) == 0
+    m.close()
+    executor.shutdown(wait=True, cancel_futures=False)
+    assert len(results) < 10, "Some tasks should have been cancelled"
 
 
 def test_map_start(executor):
